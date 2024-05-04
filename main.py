@@ -20,6 +20,9 @@ def result():
     threshold = float(request.form['threshold'])
     audio_files = request.files.getlist('audio_files')
     result_data = []
+    silent_con = 0
+    total_audio = len(audio_files)
+
 
     for file in audio_files:
         file_path = os.path.join('static', file.filename)
@@ -27,6 +30,7 @@ def result():
         get_audio_DB = is_silent(file_path)
         if get_audio_DB <= threshold:
             _silent = "Silent"
+            silent_con += 1
         else:
             _silent = "Not Silent"
 
@@ -37,9 +41,10 @@ def result():
             'threshold': threshold,
             'is_silent': _silent
         })
-
-    return render_template('result.html', result=result_data)
+    not_silent = total_audio - silent_con
+    return render_template('result.html', result=result_data, total=total_audio, silent=silent_con, nosilent=not_silent)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='10.22.202.81', port=5001)
