@@ -13,4 +13,4 @@ if __name__ == "__main__":
     if is_silent(audio_file_path):
         print("The audio file is silent.")
     else:
-        print("The audio file is not silent.")
+        print("The audio file is not silent.") a
