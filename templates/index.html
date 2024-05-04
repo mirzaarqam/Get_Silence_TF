@@ -8,8 +8,8 @@
 <body>
     <h1>Check Silence</h1>
     <form action="/result" method="POST" enctype="multipart/form-data">
-        <label for="audio_file">Select an audio file:</label><br>
-        <input type="file" id="audio_file" name="audio_file"><br><br>
+        <label for="audio_files">Select audio file(s):</label><br>
+        <input type="file" id="audio_files" name="audio_files" multiple><br><br>
         <label for="threshold">Enter threshold (dBFS):</label><br>
         <input type="text" id="threshold" name="threshold"><br><br>
         <input type="submit" value="Submit">
