@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Silence</title>
+</head>
+<body>
+    <h1>Check Silence</h1>
+    <form action="/result" method="POST" enctype="multipart/form-data">
+        <label for="audio_file">Select an audio file:</label><br>
+        <input type="file" id="audio_file" name="audio_file"><br><br>
+        <label for="threshold">Enter threshold (dBFS):</label><br>
+        <input type="text" id="threshold" name="threshold"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
