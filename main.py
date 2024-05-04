@@ -19,18 +19,27 @@ def index():
 def result():
     threshold = float(request.form['threshold'])
     audio_files = request.files.getlist('audio_files')
-    result_text = []
+    result_data = []
 
     for file in audio_files:
         file_path = os.path.join('static', file.filename)
         file.save(file_path)
         get_audio_DB = is_silent(file_path)
         if get_audio_DB <= threshold:
-            result_text.append(f"{file.filename} is silent. Audio DB {get_audio_DB} and Threshold {threshold}")
+            _silent = "Silent"
         else:
-            result_text.append(f"{file.filename} is not silent. Audio DB {get_audio_DB} and Threshold {threshold}")
+            _silent = "Not Silent"
 
-    return render_template('result.html', result=result_text)
+        audio_name = file.filename
+        result_data.append({
+            'audio_name': audio_name,
+            'audio_db': get_audio_DB,
+            'threshold': threshold,
+            'is_silent': _silent
+        })
+
+    return render_template('result.html', result=result_data)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
