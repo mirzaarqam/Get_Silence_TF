@@ -3,9 +3,25 @@ from pydub import AudioSegment
 import numpy as np
 import os
 
+
 app = Flask(__name__)
 
+
 def is_silent(audio_file_path):
+    # Load audio file using appropriate library based on file extension
+    extension = os.path.splitext(audio_file_path)[1].lower()
+
+    if extension == ".wav":
+        audio = AudioSegment.from_wav(audio_file_path)
+    elif extension == ".ogg":
+        audio = AudioSegment.from_ogg(audio_file_path)
+    elif extension == ".mp3":
+        audio = AudioSegment.from_mp3(audio_file_path)
+    elif extension == ".m4a":
+        audio = AudioSegment.from_file(audio_file_path, format="m4a")
+    else:
+        raise ValueError("Unsupported file format")
+
     my_sound = AudioSegment.from_file(audio_file_path)
     audio_sample = np.array(my_sound.get_array_of_samples())
     dBFS = 20 * np.log10(np.max(np.abs(audio_sample)) / (2 ** 15))
@@ -47,4 +63,4 @@ def result():
 
 if __name__ == "__main__":
     #app.run(debug=True)
-    app.run(host='10.22.202.81', port=5001)
+    app.run(host='10.22.202.81', port=5002)
