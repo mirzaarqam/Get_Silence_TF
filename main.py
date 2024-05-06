@@ -60,12 +60,11 @@ def result():
         #=================
         # Plot the waveform
         y, sr = librosa.load(file_path)
-        y_db = librosa.amplitude_to_db(y)
         plt.figure(figsize=(12, 4))
-        librosa.display.waveshow(y_db, sr=sr, x_axis='time')
-        plt.title('Waveform (Decibels)')
+        librosa.display.waveshow(y, sr=sr, x_axis='time')
+        plt.title('Waveform (Amplitude)')
         plt.xlabel('Time (s)')
-        plt.ylabel('Decibels')
+        plt.ylabel('Amplitude')
 
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
