@@ -3,7 +3,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 
 # Load the audio file
-audio_file = "static/12210.wav"
+audio_file = "static/12212.wav"
 y, sr = librosa.load(audio_file)
 
 # Plot the waveform
