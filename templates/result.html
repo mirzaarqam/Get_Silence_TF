@@ -5,17 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Result</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
+        /* Style the modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
         }
-        th {
-            background-color: #f2f2f2;
+
+        /* The Close Button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -25,12 +50,13 @@
     <h3>Total Audios: {{ total }}</h3>
     <h3>Total Silent Audios: {{ silent }} </h3>
     <h3>Total Not Silent Audios: {{ nosilent }}</h3>
-    <table>
+    <table border="2">
         <tr>
             <th>Audio Name</th>
             <th>Audio DB</th>
             <th>Threshold</th>
             <th>Silent / Not Silent</th>
+            <th>Action</th>
         </tr>
         {% for item in result %}
         <tr>
@@ -38,8 +64,48 @@
             <td>{{ item.audio_db }}</td>
             <td>{{ item.threshold }}</td>
             <td>{{ item.is_silent }}</td>
+            <td><button onclick="showPopup('{{ item.audio_name }}', '{{ item.graph_data }}')">Show Waveform</button></td>
         </tr>
         {% endfor %}
     </table>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <p id="audioName"></p>
+            <h1>Waveform Visualization</h1>
+            <img id="waveform" src="" alt="Waveform">
+        </div>
+    </div>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Function to display the popup with audio file name and waveform
+        function showPopup(audioName, graphData) {
+            var popupContent = document.getElementById("audioName");
+            popupContent.innerText = "Audio Name: " + audioName;
+
+            var waveformImg = document.getElementById("waveform");
+            waveformImg.src = "data:image/png;base64," + graphData;
+
+            modal.style.display = "block";
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when user clicks anywhere outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,7 +1,13 @@
+import base64
+import io
+
 from flask import Flask, render_template, request
+from matplotlib import pyplot as plt
 from pydub import AudioSegment
 import numpy as np
 import os
+import librosa
+
 
 
 app = Flask(__name__)
@@ -51,11 +57,29 @@ def result():
             _silent = "Not Silent"
 
         audio_name = file.filename
+        #=================
+        # Plot the waveform
+        y, sr = librosa.load(file_path)
+        y_db = librosa.amplitude_to_db(y)
+        plt.figure(figsize=(12, 4))
+        librosa.display.waveshow(y_db, sr=sr, x_axis='time')
+        plt.title('Waveform (Decibels)')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Decibels')
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close()
+        graph_data = base64.b64encode(buf.read()).decode('utf-8')
+        #=================
+
         result_data.append({
             'audio_name': audio_name,
             'audio_db': get_audio_DB,
             'threshold': threshold,
-            'is_silent': _silent
+            'is_silent': _silent,
+            'graph_data': graph_data
         })
     not_silent = total_audio - silent_con
     return render_template('result.html', result=result_data, total=total_audio, silent=silent_con, nosilent=not_silent)
