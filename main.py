@@ -10,7 +10,8 @@ import librosa
 import pandas as pd
 import soundfile as sf
 from extract_audio import get_audio_silence
-
+from tqdm import tqdm
+import time
 app = Flask(__name__)
 
 def get_audio_db_with_librosa(audio_path):
@@ -157,6 +158,7 @@ def calculate_avg_db(audio_path):
 def index():
     return render_template('index.html')
 
+
 @app.route('/result', methods=['POST'])
 def result():
     threshold = float(request.form['threshold'])
@@ -164,81 +166,62 @@ def result():
     result_data = []
     silent_con = 0
     total_audio = len(audio_files)
+    empty_audio_count = 0
 
-
-    for file in audio_files:
+    #for file in audio_files:
+    for file in tqdm(audio_files, desc="Processing files", unit="file", ncols=150):
+        start_time = time.time()
         file_path = os.path.join('static', file.filename)
         file.save(file_path)
         #get_audio_DB = is_silent(file_path) //pydub function call
-
         _silent = get_audio_silence(file_path, threshold)
-        original_audio_db = get_db_from_pydub(file_path)
-        chunk_audio_db = get_db_from_pydub("uploads/output_audio.wav")
+
+        original_audio_db = "Empty Audio"
+        full_audio_duration = AudioSegment.from_file(file_path)
+        full_duration = full_audio_duration.duration_seconds
+        if full_duration > 0:
+            original_audio_db = get_db_from_pydub(file_path)
+
+        chunk_audio_db = "Empty Audio"
+        cut_audio_duration = AudioSegment.from_file("uploads/output_audio.wav")
+        cut_duration = cut_audio_duration.duration_seconds
+        if cut_duration > 0:
+            chunk_audio_db = get_db_from_pydub("uploads/output_audio.wav")
+        """
+        if cut_duration >= 1:
+            file_path2 = os.path.join('audiochunk/not_silence', file.filename)
+            #file.save(file_path2)
+            cut_audio_duration.export(file_path2,format="wav")
+        elif cut_duration < 1 and cut_duration > 0:
+            file_path2 = os.path.join('audiochunk/less_one_sec', file.filename)
+            #file.save(file_path2)
+            cut_audio_duration.export(file_path2, format="wav")
+        else:
+            file_path2 = os.path.join('audiochunk/zero_sec', file.filename)
+            #file.save(file_path2)
+            cut_audio_duration.export(file_path2, format="wav")
+        """
+
         if _silent == "silent":
             silent_con += 1
+        if chunk_audio_db == "Empty Audio":
+            empty_audio_count +=1
 
         result_data.append({
             'audio_name': file.filename,
             'audio_db': original_audio_db,
+            'audio_dur': full_duration,
             'chunks_audio_db': chunk_audio_db,
+            'chunks_dur': cut_duration,
             'threshold': threshold,
             'is_silent': _silent,
+            'processing_time': round((time.time() - start_time) * 1000, 2)
+
         })
 
 
     not_silent = total_audio - silent_con
-    return render_template('result.html', result=result_data, total=total_audio, silent=silent_con, nosilent=not_silent)
-
-    """
-        get_audio_DB = get_audio_db_with_librosa(file_path) #librosa function call
-        print(get_audio_DB)
-        if get_audio_DB <= threshold:
-            _silent = "Silent"
-            silent_con += 1
-        else:
-            _silent = "Not Silent"
-
-        audio_name = file.filename
-        audio_path = file_path
-        waveform_images, chunks_avg_db = plot_audio_wave_decibels(file_path)
-
-        #=================
-        # Plot the waveform
-        y, sr = librosa.load(file_path)
-        plt.figure(figsize=(12, 4))
-        librosa.display.waveshow(y, sr=sr, x_axis='time')
-        plt.title('Waveform (Amplitude)')
-        plt.xlabel('Time (s)')
-        plt.ylabel('Amplitude')
-
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        plt.close()
-        graph_data = base64.b64encode(buf.read()).decode('utf-8')
-        #==================================================
-
-        chunks_audios = [np.mean(chunks_avg_db), chunks_avg_db]
-
-        result_data.append({
-            'audio_name': audio_name,
-            'audio_db': get_audio_DB,
-            'chunks_audio_db': chunks_audios,
-            'threshold': threshold,
-            'is_silent': _silent,
-            'graph_data': graph_data,
-            'audio_graph_data': waveform_images
-        })
-    not_silent = total_audio - silent_con
-    return render_template('result.html', result=result_data, total=total_audio, silent=silent_con, nosilent=not_silent)
-    """
-#================ Audio Maps With Decible ==============================
-
-#=======================================================================
-
-
-
-
+    return render_template('result.html', result=result_data, total=total_audio, silent=silent_con, nosilent=not_silent, empty_audio=empty_audio_count)
 
 def run_flask_app():
     # app.run(debug=True)

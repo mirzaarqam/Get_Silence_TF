@@ -29,20 +29,27 @@
     <h3>Total Audios: {{ total }}</h3>
     <h3>Total Silent Audios: {{ silent }} </h3>
     <h3>Total Not Silent Audios: {{ nosilent }}</h3>
+    <h3>Total Empty Audios: {{ empty_audio }}</h3>
     <table>
         <tr>
             <th>Audio Name</th>
             <th>Full Audio DB</th>
+            <th>Full Audio Duration</th>
             <th>Cut Audio DB</th>
+            <th>Cut Audio Duration</th>
             <th>Threshold</th>
+            <th>Processing Time (ms)</th>>
             <th>Silent / Not Silent</th>
         </tr>
         {% for item in result %}
         <tr>
             <td>{{ item.audio_name }}</td>
             <td>{{ item.audio_db }}</td>
+            <td>{{ item.audio_dur }}</td>
             <td>{{ item.chunks_audio_db}}</td>>
+            <td>{{ item.chunks_dur}}</td>>
             <td>{{ item.threshold }}</td>
+            <td>{{ item.processing_time }}</td>
             <td>{{ item.is_silent }}</td>
             <!--
             <td width="750">
